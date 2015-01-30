@@ -1,28 +1,22 @@
 package com.example.fujiwarakota.octcatrun;
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends ActionBarActivity {
     int octX;
     int octY;
     int octVelocityY = 0;
     int enemyX;
-    boolean gameOver = true;
 
     static int octSpeed = 15;
     static int enemySpeed = 15;
@@ -31,82 +25,32 @@ public class MainActivity extends ActionBarActivity {
 
     Timer mTimer = null;
     Handler mHandler = new Handler();
+    private Thread mLooper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Timer timer = new Timer(true);
-        timer.schedule( new TimerTask() {
-            @Override
-            public void run() {
-                mHandler.post( new Runnable() {
-                    @Override
-                    public void run() {
-                        if (gameOver){
-                            return;
-                        }
-                        ImageView img = (ImageView)findViewById(R.id.octcat);
-                        img.setTranslationY(img.getTranslationY() + octVelocityY);
-                        if (img.getTranslationY() < -350 && octVelocityY < 0){
-                            octVelocityY = octSpeed;
-                        } else if (img.getTranslationY() > 0) {
-                            octVelocityY = 0;
-                            img.setTranslationY(0);
-                        }
-
-                        ImageView img2 = (ImageView)findViewById(R.id.octcat2);
-                        if (img2.getTranslationX() < -1000){
-                            img2.setTranslationX(0);
-                        } else {
-                            img2.setTranslationX(img2.getTranslationX() + enemyVelocityX);
-                        }
-
-                        View rootView = findViewById(android.R.id.content);
-                        int[] octXY = new int[2];
-                        img.getLocationOnScreen(octXY);
-                        int[] enemyXY = new int[2];
-                        img2.getLocationOnScreen(enemyXY);
-                        Log.d("oct", "X:" + octXY[0] + ",y:" + octXY[1] );
-                        Log.d("enemy", "X:" + enemyXY[0] + ",y:" + enemyXY[1] );
-
-                        if (octXY[0] + 60 >= enemyXY[0] && octXY[0] <= enemyXY[0] + 60){
-                            if (octXY[1] <= enemyXY[1] && octXY[1] + 200 >= enemyXY[1]) {
-                                octVelocityY = 0;
-                                enemyVelocityX = 0;
-                                Log.d("oct1", "game over");
-                                gameOver = true;
-                            }
-                        }
-                    }
-                });
-            }
-        },0,33);
+        MainView view = new MainView(this);
+        setContentView(view);
     }
 
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_UP:
-                if(gameOver){
-                    gameOver = false;
-                    enemyVelocityX = -enemySpeed;
-                    ImageView img = (ImageView)findViewById(R.id.octcat);
-                    img.setTranslationY(0);
-                    ImageView img2 = (ImageView)findViewById(R.id.octcat2);
-                    img2.setTranslationX(0);
-                } else {
-                    ImageView img = (ImageView) findViewById(R.id.octcat);
+    class MainView extends SurfaceView {
 
-                            Log.d("TouchEvent", "X:" + event.getX());
-                            this.octVelocityY = -octSpeed;
-
-                }
-                break;
+        private SurfaceHolder mHolder = null;
+        private MainViewHolderCallBack mCallBack;
+        public MainView(Context context) {
+            super(context);
+            mHolder = getHolder();
+            mCallBack = new MainViewHolderCallBack(getContext(), this);
+            mHolder.addCallback(mCallBack);
         }
-        return true;
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            mCallBack.onTouchEvent(event);
+            return true;
+        }
     }
 
     @Override

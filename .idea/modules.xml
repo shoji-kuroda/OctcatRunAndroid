@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/OctcatRun.iml" filepath="$PROJECT_DIR$/OctcatRun.iml" />
+      <module fileurl="file://$PROJECT_DIR$/OctcatRunAndroid.iml" filepath="$PROJECT_DIR$/OctcatRunAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
